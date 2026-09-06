@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 - 2026-09-06
+
+- Remove `SENSORSPHERE_AGENT_ID`; the bearer token is now the sole agent identity.
+- Make Docker Compose multi-instance friendly: no fixed container name, direct `--env-file` substitution, per-instance data directory, and runtime UID/GID mapping.
+
 ## 1.0.0 - 2026-09-06
 
 Initial standalone SensorSphere Monitor Agent V1 baseline.

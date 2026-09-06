@@ -34,7 +34,6 @@ export class MonitorAgent {
 
     this.logger.info("SensorSphere Monitor Agent starting", {
       version: AGENT_VERSION,
-      agentId: this.config.agentId,
       sensorSphereUrl: this.config.sensorSphereUrl,
       hostname: os.hostname(),
     });

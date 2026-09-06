@@ -3,7 +3,6 @@ import { parseLogLevel } from "../util/logger.js";
 
 export interface AgentConfig {
   sensorSphereUrl: string;
-  agentId: string;
   agentToken: string;
   heartbeatIntervalMs: number;
   configPollIntervalMs: number;
@@ -48,7 +47,6 @@ export function loadConfig(): AgentConfig {
   const stateFile = process.env.SENSORSPHERE_STATE_FILE?.trim() || path.resolve("data/monitor-agent-state.json");
   return {
     sensorSphereUrl: url.toString().replace(/\/$/, ""),
-    agentId: required("SENSORSPHERE_AGENT_ID"),
     agentToken: required("SENSORSPHERE_AGENT_TOKEN"),
     heartbeatIntervalMs: positiveInt("SENSORSPHERE_HEARTBEAT_INTERVAL_SECONDS", 30) * 1000,
     configPollIntervalMs: positiveInt("SENSORSPHERE_CONFIG_POLL_INTERVAL_SECONDS", 15) * 1000,
