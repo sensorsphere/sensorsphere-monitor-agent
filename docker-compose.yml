@@ -1,0 +1,13 @@
+services:
+  monitor-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sensorsphere-monitor-agent
+    restart: unless-stopped
+    cap_add:
+      - NET_RAW
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data

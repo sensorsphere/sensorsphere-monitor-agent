@@ -1,0 +1,24 @@
+{
+  "name": "sensorsphere-monitor-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone SensorSphere monitoring agent",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "check": "npm run build && npm test",
+    "test": "node --test dist/**/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "24.3.0",
+    "tsx": "4.20.5",
+    "typescript": "5.9.2"
+  }
+}

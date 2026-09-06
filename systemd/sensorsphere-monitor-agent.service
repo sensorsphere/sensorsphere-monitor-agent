@@ -1,0 +1,24 @@
+[Unit]
+Description=SensorSphere Monitor Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=sensorsphere-monitor
+Group=sensorsphere-monitor
+WorkingDirectory=/opt/sensorsphere-monitor-agent
+EnvironmentFile=/etc/sensorsphere-monitor-agent.env
+ExecStart=/usr/bin/node /opt/sensorsphere-monitor-agent/dist/index.js
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+AmbientCapabilities=CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_RAW
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/sensorsphere-monitor-agent
+
+[Install]
+WantedBy=multi-user.target
