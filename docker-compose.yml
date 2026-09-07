@@ -1,6 +1,6 @@
 services:
   monitor-agent:
-    image: ${MONITOR_AGENT_IMAGE:-sensorsphere-monitor-agent:1.0.2}
+    image: ${MONITOR_AGENT_IMAGE:-ghcr.io/sensorsphere/sensorsphere-monitor-agent:latest}
     restart: unless-stopped
     user: "${PUID}:${PGID}"
     cap_add:

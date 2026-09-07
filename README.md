@@ -168,11 +168,49 @@ npm run check
 
 ## Docker image publication
 
+### Pre requisites
+
+```sh
+# Multi Arch emulation
+docker run --privileged --rm tonistiigi/binfmt --install all
+
+# create a clean BuildX
+docker buildx create --name sensorsphere-builder --driver docker-container --use
+docker buildx inspect --bootstrap
+
+```
+
+### Execution
+
 ```bash
 source .env-github
 echo "${CR_PAT}" | docker login ghcr.io -u "${GITHUB_LOGIN}" --password-stdin
 
 ./scripts/release-image.sh ghcr.io/sensorsphere/sensorsphere-monitor-agent
+
+```
+
+## Docker image run
+
+```sh
+SS_MONITOR_AGENT_BASE_DIR=$(pwd)
+
+# Get docker-compose.yaml
+curl -fsSL \
+  https://raw.githubusercontent.com/sensorsphere/sensorsphere-monitor-agent/master/docker-compose.yml \
+  -o docker-compose.yml
+# Get .env example file if not exist
+if [ ! -f .env ]; then
+  curl -fsSL \
+    https://raw.githubusercontent.com/sensorsphere/sensorsphere-monitor-agent/master/.env.example \
+    -o .env
+fi
+
+mkdir ${SS_MONITOR_AGENT_BASE_DIR}/data
+PUID=$(id -u)
+PGID=$(id -g)
+
+docker compose up
 
 ```
 
