@@ -2,7 +2,7 @@
 
 Standalone outbound-only monitoring agent for SensorSphere. V1 executes assigned `PING` checks and reports results through the SensorSphere Monitoring API. It exposes no inbound management port and requires no inbound firewall/NAT rule.
 
-Version: **1.0.2**
+Version: **1.0.3**
 
 ## Requirements
 
@@ -41,19 +41,22 @@ SENSORSPHERE_STATE_FILE=/var/lib/sensorsphere-monitor-agent/monitor-agent-state.
 
 The default `docker-compose.yml` is the production/distribution compose file. It pulls a pre-built image and does not require Node.js, npm, Git or the source tree on the target machine.
 
-Create a deployment directory:
+The recommended installation is the version-aware remote installer:
 
 ```bash
-mkdir -p sensorsphere-monitor-agent/data
-cd sensorsphere-monitor-agent
-# copy docker-compose.yml and .env.example from the release bundle
-cp .env.example .env
+VERSION=1.0.3 \
+INSTALL_DIR=/opt/sensorsphere-monitor-agent \
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/sensorsphere/sensorsphere-monitor-agent/master/scripts/install.sh)"
 ```
+
+The installer downloads `docker-compose.yml` and `.env.example` from the matching Git tag (`v${VERSION}`), creates `data/`, and creates `.env` when it does not exist. An existing `.env` is preserved; only `MONITOR_AGENT_IMAGE` is updated to the requested release. The agent is not started automatically.
+
+For an unversioned installation, omit `VERSION`; the installer uses `master` and the `latest` image tag. `INSTALL_DIR` defaults to `$HOME/sensorsphere-monitor-agent`.
 
 Configure at minimum:
 
 ```env
-MONITOR_AGENT_IMAGE=ghcr.io/YOUR_GITHUB_ORG/sensorsphere-monitor-agent:1.0.2
+MONITOR_AGENT_IMAGE=ghcr.io/sensorsphere/sensorsphere-monitor-agent:1.0.3
 SENSORSPHERE_URL=http://100.64.0.8:8080
 SENSORSPHERE_AGENT_TOKEN=ssma_replace_me
 DATA_DIR=./data
@@ -97,15 +100,22 @@ export IMAGE_NAMESPACE=my-github-org
 ./scripts/release-image.sh
 ```
 
-For version `1.0.2`, the published tags are:
+For version `1.0.3`, the published tags are:
 
 ```text
-ghcr.io/my-github-org/sensorsphere-monitor-agent:1.0.2
+ghcr.io/my-github-org/sensorsphere-monitor-agent:1.0.3
 ghcr.io/my-github-org/sensorsphere-monitor-agent:1.0
 ghcr.io/my-github-org/sensorsphere-monitor-agent:latest
 ```
 
-The registry and image name remain configurable through `REGISTRY`, `IMAGE_NAMESPACE` and `IMAGE_NAME`. OCI source/revision labels are added to the image.
+The registry and image name remain configurable through `REGISTRY`, `IMAGE_NAMESPACE` and `IMAGE_NAME`. OCI source/revision labels are added to the image. Outside GitHub Actions, the source URL is inferred from the Git `origin` remote when possible.
+
+Create and push an annotated Git tag for every published version so versioned installs remain immutable:
+
+```bash
+git tag -a v1.0.3 -m "SensorSphere Monitor Agent 1.0.3"
+git push origin v1.0.3
+```
 
 ## systemd example
 

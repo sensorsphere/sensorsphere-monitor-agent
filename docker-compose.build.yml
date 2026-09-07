@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        AGENT_VERSION: ${MONITOR_AGENT_VERSION:-1.0.2}
+        AGENT_VERSION: ${MONITOR_AGENT_VERSION:-1.0.3}
         OCI_SOURCE: ${OCI_SOURCE:-local}
         OCI_REVISION: ${OCI_REVISION:-local}
     image: ${MONITOR_AGENT_IMAGE:-sensorsphere-monitor-agent:local}

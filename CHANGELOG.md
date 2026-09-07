@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.3 - 2026-09-07
+
+- Add a version-aware remote installer for Docker deployments.
+- Preserve existing agent configuration while updating the requested image version.
+- Download version-matched Compose and environment template files from GitHub.
+- Auto-detect the GitHub repository URL for OCI source metadata when publishing locally.
+- Document Git tags as the immutable source for versioned installations.
+
 ## 1.0.2 - 2026-09-07
 
 - Switch the default Docker Compose file to pre-built image distribution instead of source builds.

@@ -15,7 +15,32 @@ IMAGE_NAMESPACE="${IMAGE_NAMESPACE:?Set IMAGE_NAMESPACE, for example your GitHub
 IMAGE_NAME="${IMAGE_NAME:-sensorsphere-monitor-agent}"
 IMAGE="${REGISTRY}/${IMAGE_NAMESPACE}/${IMAGE_NAME}"
 PLATFORMS="${PLATFORMS:-linux/amd64,linux/arm64}"
-SOURCE="${OCI_SOURCE:-${GITHUB_SERVER_URL:-https://github.com}/${GITHUB_REPOSITORY:-unknown}}"
+detect_source() {
+  if [[ -n "${GITHUB_REPOSITORY:-}" ]]; then
+    printf '%s/%s\n' "${GITHUB_SERVER_URL:-https://github.com}" "$GITHUB_REPOSITORY"
+    return
+  fi
+
+  local remote
+  remote="$(git config --get remote.origin.url 2>/dev/null || true)"
+  case "$remote" in
+    git@github.com:*)
+      remote="https://github.com/${remote#git@github.com:}"
+      ;;
+    ssh://git@github.com/*)
+      remote="https://github.com/${remote#ssh://git@github.com/}"
+      ;;
+  esac
+
+  remote="${remote%.git}"
+  if [[ "$remote" == https://github.com/* ]]; then
+    printf '%s\n' "$remote"
+  else
+    printf '%s\n' "unknown"
+  fi
+}
+
+SOURCE="${OCI_SOURCE:-$(detect_source)}"
 REVISION="${OCI_REVISION:-$(git rev-parse HEAD 2>/dev/null || echo unknown)}"
 MINOR="${VERSION%.*}"
 
