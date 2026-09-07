@@ -166,6 +166,16 @@ The offline queue is bounded by both maximum result count and retention age.
 npm run check
 ```
 
+## Docker image publication
+
+```bash
+source .env-github
+echo "${CR_PAT}" | docker login ghcr.io -u "${GITHUB_LOGIN}" --password-stdin
+
+./scripts/release-image.sh ghcr.io/sensorsphere/sensorsphere-monitor-agent
+
+```
+
 ## Security notes
 
 - Monitoring API calls use `Authorization: Bearer <token>`.
