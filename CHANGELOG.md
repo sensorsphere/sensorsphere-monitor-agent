@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.4 - 2026-09-07
+
+- Log runtime identity, data directory and resolved SensorSphere configuration at agent startup.
+- Mask the agent token in startup diagnostics, keeping only the first 13 and last 8 characters.
+- Persist PUID and PGID into newly created installer environment files, honoring explicit installer overrides.
+- Simplify post-install Compose commands because UID/GID are now stored in `.env`.
+
 ## 1.0.3 - 2026-09-07
 
 - Add a version-aware remote installer for Docker deployments.

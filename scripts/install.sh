@@ -62,7 +62,14 @@ cp "$TMP_DIR/.env.example" "$INSTALL_DIR/.env.example"
 
 if [[ ! -f "$INSTALL_DIR/.env" ]]; then
   cp "$INSTALL_DIR/.env.example" "$INSTALL_DIR/.env"
-  printf 'Created %s/.env from .env.example\n' "$INSTALL_DIR"
+  INSTALL_PUID="${PUID:-$(id -u)}"
+  INSTALL_PGID="${PGID:-$(id -g)}"
+  {
+    printf '\n# Runtime UID/GID selected by scripts/install.sh\n'
+    printf 'PUID=%s\n' "$INSTALL_PUID"
+    printf 'PGID=%s\n' "$INSTALL_PGID"
+  } >> "$INSTALL_DIR/.env"
+  printf 'Created %s/.env from .env.example with PUID=%s PGID=%s\n' "$INSTALL_DIR" "$INSTALL_PUID" "$INSTALL_PGID"
 else
   printf 'Preserving existing %s/.env\n' "$INSTALL_DIR"
 fi
@@ -93,10 +100,10 @@ At minimum configure:
 
 Then start the agent:
   cd ${INSTALL_DIR}
-  PUID=\$(id -u) PGID=\$(id -g) docker compose --env-file .env pull
-  PUID=\$(id -u) PGID=\$(id -g) docker compose --env-file .env up -d
+  docker compose --env-file .env pull
+  docker compose --env-file .env up -d
 
 Follow logs with:
-  PUID=\$(id -u) PGID=\$(id -g) docker compose --env-file .env logs -f monitor-agent
+  docker compose --env-file .env logs -f monitor-agent
 
 EOF

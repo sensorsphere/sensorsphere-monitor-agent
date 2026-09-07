@@ -1,4 +1,5 @@
 import os from "node:os";
+import path from "node:path";
 import type { SensorSphereClient } from "../api/client.js";
 import { AuthenticationError } from "../api/client.js";
 import type { AgentConfig } from "../config/env.js";
@@ -7,6 +8,19 @@ import type { CheckResult } from "../types/monitoring.js";
 import type { Logger } from "../util/logger.js";
 import { AGENT_VERSION } from "../version.js";
 import type { CheckScheduler } from "./scheduler.js";
+
+function maskedToken(token: string): string {
+  if (token.length <= 21) return `${token.slice(0, Math.min(5, token.length))}........`;
+  return `${token.slice(0, 13)}........${token.slice(-8)}`;
+}
+
+function runningUsername(): string {
+  try {
+    return os.userInfo().username;
+  } catch {
+    return process.env.USER?.trim() || process.env.LOGNAME?.trim() || "unknown";
+  }
+}
 
 export class MonitorAgent {
   private stopped = false;
@@ -34,8 +48,22 @@ export class MonitorAgent {
 
     this.logger.info("SensorSphere Monitor Agent starting", {
       version: AGENT_VERSION,
-      sensorSphereUrl: this.config.sensorSphereUrl,
       hostname: os.hostname(),
+      running_user: runningUsername(),
+      uid: typeof process.getuid === "function" ? process.getuid() : null,
+      gid: typeof process.getgid === "function" ? process.getgid() : null,
+      data_dir: path.dirname(this.config.stateFile),
+      sensorsphere_url: this.config.sensorSphereUrl,
+      SENSORSPHERE_URL: this.config.sensorSphereUrl,
+      SENSORSPHERE_AGENT_TOKEN: maskedToken(this.config.agentToken),
+      SENSORSPHERE_HEARTBEAT_INTERVAL_SECONDS: this.config.heartbeatIntervalMs / 1000,
+      SENSORSPHERE_CONFIG_POLL_INTERVAL_SECONDS: this.config.configPollIntervalMs / 1000,
+      SENSORSPHERE_REQUEST_TIMEOUT_MS: this.config.requestTimeoutMs,
+      SENSORSPHERE_STATE_FILE: this.config.stateFile,
+      SENSORSPHERE_QUEUE_MAX_RESULTS: this.config.queueMaxResults,
+      SENSORSPHERE_QUEUE_RETENTION_HOURS: this.config.queueRetentionMs / (60 * 60 * 1000),
+      SENSORSPHERE_LOG_LEVEL: this.config.logLevel,
+      SENSORSPHERE_AGENT_LABELS: this.config.labels,
     });
 
     await this.heartbeatOnce();
