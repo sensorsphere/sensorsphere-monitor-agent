@@ -6,6 +6,7 @@ const managedVariables = [
   "SENSORSPHERE_URL",
   "SENSORSPHERE_AGENT_ID",
   "SENSORSPHERE_AGENT_TOKEN",
+  "AGENT_LABELS",
 ] as const;
 
 function withEnvironment(values: Record<string, string | undefined>, callback: () => void): void {
@@ -36,6 +37,22 @@ test("SENSORSPHERE_AGENT_ID is not required", () => {
       assert.equal(config.sensorSphereUrl, "http://127.0.0.1:8080");
       assert.equal(config.agentToken, "ssma_test");
       assert.equal("agentId" in config, false);
+      assert.deepEqual(config.agentLabels, []);
+    },
+  );
+});
+
+
+test("AGENT_LABELS is parsed, trimmed and deduplicated", () => {
+  withEnvironment(
+    {
+      SENSORSPHERE_URL: "http://127.0.0.1:8080",
+      SENSORSPHERE_AGENT_TOKEN: "ssma_test",
+      AGENT_LABELS: "vm-022, site-paris,oracle,site-paris, ,vm-022",
+    },
+    () => {
+      const config = loadConfig();
+      assert.deepEqual(config.agentLabels, ["vm-022", "site-paris", "oracle"]);
     },
   );
 });

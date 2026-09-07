@@ -63,7 +63,7 @@ export class MonitorAgent {
       SENSORSPHERE_QUEUE_MAX_RESULTS: this.config.queueMaxResults,
       SENSORSPHERE_QUEUE_RETENTION_HOURS: this.config.queueRetentionMs / (60 * 60 * 1000),
       SENSORSPHERE_LOG_LEVEL: this.config.logLevel,
-      SENSORSPHERE_AGENT_LABELS: this.config.labels,
+      AGENT_LABELS: this.config.agentLabels.join(","),
     });
 
     await this.heartbeatOnce();
@@ -108,7 +108,7 @@ export class MonitorAgent {
       const response = await this.client.heartbeat({
         version: AGENT_VERSION,
         hostname: os.hostname(),
-        ...(Object.keys(this.config.labels).length > 0 ? { labels: this.config.labels } : {}),
+        agentLabels: this.config.agentLabels,
       });
       this.markConnected();
       if (this.serverRevision !== response.configRevision) {

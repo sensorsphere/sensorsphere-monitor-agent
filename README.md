@@ -2,7 +2,7 @@
 
 Standalone outbound-only monitoring agent for SensorSphere. V1 executes assigned `PING` checks and reports results through the SensorSphere Monitoring API. It exposes no inbound management port and requires no inbound firewall/NAT rule.
 
-Version: **1.0.4**
+Version: **1.0.5**
 
 ## Requirements
 
@@ -22,6 +22,14 @@ SENSORSPHERE_AGENT_TOKEN=ssma_replace_me
 ```
 
 SensorSphere derives the agent identity exclusively from the bearer token. No URL or token is defaulted, and the raw token is never logged.
+
+Optional agent-reported labels are configured as a comma-separated list:
+
+```env
+AGENT_LABELS=vm-022,site-paris,oracle,production
+```
+
+Whitespace is trimmed and duplicates are removed while preserving order. These values are reported by the agent and remain distinct from labels managed directly in SensorSphere.
 
 ## Native Node.js
 
@@ -44,7 +52,7 @@ The default `docker-compose.yml` is the production/distribution compose file. It
 The recommended installation is the version-aware remote installer:
 
 ```bash
-VERSION=1.0.4 \
+VERSION=1.0.5 \
 INSTALL_DIR=/opt/sensorsphere-monitor-agent \
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/sensorsphere/sensorsphere-monitor-agent/master/scripts/install.sh)"
 ```
@@ -56,7 +64,7 @@ For an unversioned installation, omit `VERSION`; the installer uses `master` and
 Configure at minimum:
 
 ```env
-MONITOR_AGENT_IMAGE=ghcr.io/sensorsphere/sensorsphere-monitor-agent:1.0.4
+MONITOR_AGENT_IMAGE=ghcr.io/sensorsphere/sensorsphere-monitor-agent:1.0.5
 SENSORSPHERE_URL=http://100.64.0.8:8080
 SENSORSPHERE_AGENT_TOKEN=ssma_replace_me
 DATA_DIR=./data
@@ -100,10 +108,10 @@ export IMAGE_NAMESPACE=my-github-org
 ./scripts/release-image.sh
 ```
 
-For version `1.0.4`, the published tags are:
+For version `1.0.5`, the published tags are:
 
 ```text
-ghcr.io/my-github-org/sensorsphere-monitor-agent:1.0.4
+ghcr.io/my-github-org/sensorsphere-monitor-agent:1.0.5
 ghcr.io/my-github-org/sensorsphere-monitor-agent:1.0
 ghcr.io/my-github-org/sensorsphere-monitor-agent:latest
 ```
@@ -113,13 +121,13 @@ The registry and image name remain configurable through `REGISTRY`, `IMAGE_NAMES
 Create and push an annotated Git tag for every published version so versioned installs remain immutable:
 
 ```bash
-git tag -a v1.0.4 -m "SensorSphere Monitor Agent 1.0.4"
-git push origin v1.0.4
+git tag -a v1.0.5 -m "SensorSphere Monitor Agent 1.0.5"
+git push origin v1.0.5
 ```
 
 ## Startup diagnostics
 
-At startup the agent logs its hostname, running user, UID/GID, data directory, SensorSphere URL, and all resolved runtime configuration values. `SENSORSPHERE_AGENT_TOKEN` is never logged in full: only the first 13 and last 8 characters are shown with `........` between them.
+At startup the agent logs its hostname, running user, UID/GID, data directory, SensorSphere URL, all resolved runtime configuration values, and `AGENT_LABELS`. `SENSORSPHERE_AGENT_TOKEN` is never logged in full: only the first 13 and last 8 characters are shown with `........` between them.
 
 ## systemd example
 

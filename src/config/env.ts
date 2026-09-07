@@ -11,7 +11,7 @@ export interface AgentConfig {
   queueMaxResults: number;
   queueRetentionMs: number;
   logLevel: ReturnType<typeof parseLogLevel>;
-  labels: Record<string, string>;
+  agentLabels: string[];
 }
 
 function required(name: string): string {
@@ -28,14 +28,15 @@ function positiveInt(name: string, fallback: number): number {
   return value;
 }
 
-function parseLabels(raw: string | undefined): Record<string, string> {
-  if (!raw?.trim()) return {};
-  const parsed: unknown = JSON.parse(raw);
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("SENSORSPHERE_AGENT_LABELS must be a JSON object");
-  const labels: Record<string, string> = {};
-  for (const [key, value] of Object.entries(parsed)) {
-    if (typeof value !== "string") throw new Error("SENSORSPHERE_AGENT_LABELS values must be strings");
-    labels[key] = value;
+function parseAgentLabels(raw: string | undefined): string[] {
+  if (!raw?.trim()) return [];
+  const seen = new Set<string>();
+  const labels: string[] = [];
+  for (const part of raw.split(",")) {
+    const label = part.trim();
+    if (!label || seen.has(label)) continue;
+    seen.add(label);
+    labels.push(label);
   }
   return labels;
 }
@@ -55,6 +56,6 @@ export function loadConfig(): AgentConfig {
     queueMaxResults: positiveInt("SENSORSPHERE_QUEUE_MAX_RESULTS", 10000),
     queueRetentionMs: positiveInt("SENSORSPHERE_QUEUE_RETENTION_HOURS", 72) * 60 * 60 * 1000,
     logLevel: parseLogLevel(process.env.SENSORSPHERE_LOG_LEVEL ?? "info"),
-    labels: parseLabels(process.env.SENSORSPHERE_AGENT_LABELS),
+    agentLabels: parseAgentLabels(process.env.AGENT_LABELS),
   };
 }

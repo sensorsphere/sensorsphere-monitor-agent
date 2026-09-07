@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.5 - 2026-09-07
+
+- Add comma-separated `AGENT_LABELS` reported by the agent to SensorSphere on every heartbeat.
+- Trim labels, remove empty entries and preserve only the first occurrence of duplicates.
+- Keep agent-reported labels distinct from SensorSphere-managed monitoring-agent labels.
+- Show the resolved `AGENT_LABELS` value in startup diagnostics.
+
 ## 1.0.4 - 2026-09-07
 
 - Log runtime identity, data directory and resolved SensorSphere configuration at agent startup.
