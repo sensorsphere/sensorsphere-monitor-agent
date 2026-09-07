@@ -1,8 +1,6 @@
 services:
   monitor-agent:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${MONITOR_AGENT_IMAGE:-sensorsphere-monitor-agent:1.0.2}
     restart: unless-stopped
     user: "${PUID}:${PGID}"
     cap_add:

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.2 - 2026-09-07
+
+- Switch the default Docker Compose file to pre-built image distribution instead of source builds.
+- Add a source-build Compose overlay for development.
+- Add multi-architecture release publishing for exact, major.minor and latest image tags.
+- Add OCI image metadata and a canonical VERSION file.
+- Document minimal remote installation and explicit image upgrades.
+
 ## 1.0.1 - 2026-09-06
 
 - Remove `SENSORSPHERE_AGENT_ID`; the bearer token is now the sole agent identity.

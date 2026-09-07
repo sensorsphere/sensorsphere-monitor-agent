@@ -7,6 +7,14 @@ COPY src ./src
 RUN npm run build && npm prune --omit=dev
 
 FROM node:22-bookworm-slim
+ARG AGENT_VERSION=dev
+ARG OCI_SOURCE=unknown
+ARG OCI_REVISION=unknown
+LABEL org.opencontainers.image.title="SensorSphere Monitor Agent" \
+      org.opencontainers.image.description="Standalone outbound-only monitoring agent for SensorSphere" \
+      org.opencontainers.image.version="$AGENT_VERSION" \
+      org.opencontainers.image.source="$OCI_SOURCE" \
+      org.opencontainers.image.revision="$OCI_REVISION"
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apt-get update \
