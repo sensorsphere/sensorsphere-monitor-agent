@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.6 - 2026-09-08
+
+- Add optional `AGENT_NAME` for a stable human-readable monitoring-agent instance name.
+- Send `X-SensorSphere-Agent-Name` on every SensorSphere HTTP request when `AGENT_NAME` is configured.
+- Log the resolved `AGENT_NAME` at startup; the header remains diagnostic-only and does not participate in authentication.
+
 ## 1.0.5 - 2026-09-07
 
 - Add comma-separated `AGENT_LABELS` reported by the agent to SensorSphere on every heartbeat.

@@ -64,6 +64,7 @@ export class MonitorAgent {
       SENSORSPHERE_QUEUE_RETENTION_HOURS: this.config.queueRetentionMs / (60 * 60 * 1000),
       SENSORSPHERE_LOG_LEVEL: this.config.logLevel,
       AGENT_LABELS: this.config.agentLabels.join(","),
+      AGENT_NAME: this.config.agentName ?? "",
     });
 
     await this.heartbeatOnce();

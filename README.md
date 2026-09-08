@@ -27,6 +27,7 @@ Optional agent-reported labels are configured as a comma-separated list:
 
 ```env
 AGENT_LABELS=vm-022,site-paris,oracle,production
+AGENT_NAME=monitor-home
 ```
 
 Whitespace is trimmed and duplicates are removed while preserving order. These values are reported by the agent and remain distinct from labels managed directly in SensorSphere.
@@ -127,7 +128,9 @@ git push origin v1.0.5
 
 ## Startup diagnostics
 
-At startup the agent logs its hostname, running user, UID/GID, data directory, SensorSphere URL, all resolved runtime configuration values, and `AGENT_LABELS`. `SENSORSPHERE_AGENT_TOKEN` is never logged in full: only the first 13 and last 8 characters are shown with `........` between them.
+Set `AGENT_NAME` to a stable human-readable instance name when reverse-proxy logs must distinguish monitoring agents. The agent sends it on every SensorSphere HTTP request as `X-SensorSphere-Agent-Name`. The header is diagnostic metadata only; SensorSphere authentication continues to rely exclusively on the bearer token.
+
+At startup the agent logs its hostname, running user, UID/GID, data directory, SensorSphere URL, all resolved runtime configuration values, `AGENT_LABELS`, and `AGENT_NAME`. `SENSORSPHERE_AGENT_TOKEN` is never logged in full: only the first 13 and last 8 characters are shown with `........` between them.
 
 ## systemd example
 

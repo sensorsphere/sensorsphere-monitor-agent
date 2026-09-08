@@ -30,6 +30,7 @@ export class SensorSphereClient {
         headers: {
           Authorization: `Bearer ${this.config.agentToken}`,
           Accept: "application/json",
+          ...(this.config.agentName ? { "X-SensorSphere-Agent-Name": this.config.agentName } : {}),
           ...(body === undefined ? {} : { "Content-Type": "application/json" }),
         },
         body: body === undefined ? undefined : JSON.stringify(body),

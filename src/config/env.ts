@@ -12,6 +12,7 @@ export interface AgentConfig {
   queueRetentionMs: number;
   logLevel: ReturnType<typeof parseLogLevel>;
   agentLabels: string[];
+  agentName?: string;
 }
 
 function required(name: string): string {
@@ -57,5 +58,6 @@ export function loadConfig(): AgentConfig {
     queueRetentionMs: positiveInt("SENSORSPHERE_QUEUE_RETENTION_HOURS", 72) * 60 * 60 * 1000,
     logLevel: parseLogLevel(process.env.SENSORSPHERE_LOG_LEVEL ?? "info"),
     agentLabels: parseAgentLabels(process.env.AGENT_LABELS),
+    agentName: process.env.AGENT_NAME?.trim() || undefined,
   };
 }
