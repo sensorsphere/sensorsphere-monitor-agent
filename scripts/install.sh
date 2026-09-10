@@ -72,6 +72,14 @@ if [[ ! -f "$INSTALL_DIR/.env" ]]; then
   printf 'Created %s/.env from .env.example with PUID=%s PGID=%s\n' "$INSTALL_DIR" "$INSTALL_PUID" "$INSTALL_PGID"
 else
   printf 'Preserving existing %s/.env\n' "$INSTALL_DIR"
+
+  if ! grep -q '^PUID=' "$INSTALL_DIR/.env"; then
+    printf '\nPUID=%s\n' "${PUID:-$(id -u)}" >> "$INSTALL_DIR/.env"
+  fi
+
+  if ! grep -q '^PGID=' "$INSTALL_DIR/.env"; then
+    printf 'PGID=%s\n' "${PGID:-$(id -g)}" >> "$INSTALL_DIR/.env"
+  fi
 fi
 
 IMAGE_VALUE="${IMAGE}:${IMAGE_TAG}"
@@ -81,13 +89,56 @@ else
   printf '\n# Image version selected by scripts/install.sh\nMONITOR_AGENT_IMAGE=%s\n' "$IMAGE_VALUE" >> "$INSTALL_DIR/.env"
 fi
 
-PUID="$(id -u)" PGID="$(id -g)" \
+INSTALL_PUID="$(grep '^PUID=' "$INSTALL_DIR/.env" | tail -1 | cut -d= -f2-)"
+INSTALL_PGID="$(grep '^PGID=' "$INSTALL_DIR/.env" | tail -1 | cut -d= -f2-)"
+
+PUID="$INSTALL_PUID" \
+PGID="$INSTALL_PGID" \
+MONITOR_AGENT_IMAGE="$IMAGE_VALUE" \
   docker compose \
-    --env-file "$INSTALL_DIR/.env.example" \
+    --env-file "$INSTALL_DIR/.env" \
     -f "$INSTALL_DIR/docker-compose.yml" \
     config -q
 
-cat <<EOF
+read_env_value() {
+  local key="$1"
+  sed -n "s/^${key}=//p" "$INSTALL_DIR/.env" | tail -1
+}
+
+SENSORSPHERE_URL_VALUE="$(read_env_value SENSORSPHERE_URL)"
+SENSORSPHERE_TOKEN_VALUE="$(read_env_value SENSORSPHERE_AGENT_TOKEN)"
+
+CONFIGURED=true
+if [[ -z "$SENSORSPHERE_URL_VALUE" || "$SENSORSPHERE_URL_VALUE" == "http://my_sensorsphere_base_url:8080" ]]; then
+  CONFIGURED=false
+fi
+if [[ -z "$SENSORSPHERE_TOKEN_VALUE" || "$SENSORSPHERE_TOKEN_VALUE" == "ssma_replace_me" ]]; then
+  CONFIGURED=false
+fi
+
+if [[ "$CONFIGURED" == "true" ]]; then
+  printf '\nUpdating SensorSphere Monitor Agent container...\n'
+  (
+    cd "$INSTALL_DIR"
+    docker compose --env-file .env pull
+    docker compose --env-file .env up -d
+  )
+
+  cat <<EOF2
+
+SensorSphere Monitor Agent is running.
+  image: ${IMAGE_VALUE}
+
+Check status with:
+  cd ${INSTALL_DIR}
+  docker compose --env-file .env ps
+
+Follow logs with:
+  docker compose --env-file .env logs -f monitor-agent
+
+EOF2
+else
+  cat <<EOF2
 
 Installation files are ready.
 
@@ -98,12 +149,10 @@ At minimum configure:
   SENSORSPHERE_URL
   SENSORSPHERE_AGENT_TOKEN
 
-Then start the agent:
+Then rerun the installer to pull and start the selected image, or start manually with:
   cd ${INSTALL_DIR}
   docker compose --env-file .env pull
   docker compose --env-file .env up -d
 
-Follow logs with:
-  docker compose --env-file .env logs -f monitor-agent
-
-EOF
+EOF2
+fi
