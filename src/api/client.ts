@@ -7,7 +7,7 @@ export class SensorSphereUnavailableError extends Error {}
 export class SensorSphereClient {
   constructor(private readonly config: AgentConfig) {}
 
-  heartbeat(payload: { version: string; hostname: string; agentLabels: string[] }): Promise<HeartbeatResponse> {
+  heartbeat(payload: { version: string; hostname: string; agentLabels: string[]; systemInfo: { os: string; osVersion: string; architecture: string } }): Promise<HeartbeatResponse> {
     return this.request<HeartbeatResponse>("POST", "/api/v1/monitoring/agent/heartbeat", payload);
   }
 

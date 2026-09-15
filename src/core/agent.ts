@@ -8,6 +8,7 @@ import type { CheckResult } from "../types/monitoring.js";
 import type { Logger } from "../util/logger.js";
 import { AGENT_VERSION } from "../version.js";
 import type { CheckScheduler } from "./scheduler.js";
+import { getSystemInfo } from "../system-info.js";
 
 function maskedToken(token: string): string {
   if (token.length <= 21) return `${token.slice(0, Math.min(5, token.length))}........`;
@@ -110,6 +111,7 @@ export class MonitorAgent {
         version: AGENT_VERSION,
         hostname: os.hostname(),
         agentLabels: this.config.agentLabels,
+        systemInfo: getSystemInfo(),
       });
       this.markConnected();
       if (this.serverRevision !== response.configRevision) {

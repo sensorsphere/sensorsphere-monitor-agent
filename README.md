@@ -245,3 +245,8 @@ docker compose up
 - The raw token is never emitted in logs.
 - There is no agent HTTP UI or inbound management listener in V1.
 - TLS certificate verification uses the secure Node.js default and is not disabled by the agent.
+
+
+## Host system information
+
+The agent reports the host operating system, OS version and processor architecture to SensorSphere. Docker Compose mounts `/etc/os-release` read-only at `/host/etc/os-release` so the reported OS is the host OS rather than the container image.
