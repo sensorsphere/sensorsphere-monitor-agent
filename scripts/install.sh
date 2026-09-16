@@ -25,7 +25,7 @@ elif [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
   SOURCE_REF="v${VERSION}"
   IMAGE_TAG="$VERSION"
 else
-  fail "VERSION must be 'latest' or a semantic version such as 1.0.3"
+  fail "VERSION must be 'latest' or a semantic version such as 1.0.9"
 fi
 
 PREEXISTING_INSTALL=false
@@ -133,7 +133,27 @@ MONITOR_AGENT_IMAGE="$IMAGE_VALUE" \
 
 read_env_value() {
   local key="$1"
-  sed -n "s/^${key}=//p" "$INSTALL_DIR/.env" | tail -1
+  local line value
+
+  # Accept the same common .env forms Docker Compose accepts for existing
+  # installations: optional leading whitespace, optional `export`, whitespace
+  # around `=`, and optionally quoted values.
+  line="$(grep -E "^[[:space:]]*(export[[:space:]]+)?${key}[[:space:]]*=" "$INSTALL_DIR/.env" | tail -1 || true)"
+  [[ -n "$line" ]] || return 0
+
+  value="${line#*=}"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+
+  if [[ ${#value} -ge 2 ]]; then
+    if [[ "$value" == \"*\" && "$value" == *\" ]]; then
+      value="${value:1:${#value}-2}"
+    elif [[ "$value" == \'*\' && "$value" == *\' ]]; then
+      value="${value:1:${#value}-2}"
+    fi
+  fi
+
+  printf '%s' "$value"
 }
 
 SENSORSPHERE_URL_VALUE="$(read_env_value SENSORSPHERE_URL)"
@@ -151,8 +171,14 @@ if [[ "$CONFIGURED" == "true" ]]; then
   printf '\nUpdating SensorSphere Monitor Agent container...\n'
   (
     cd "$INSTALL_DIR"
-    docker compose --env-file .env pull
-    docker compose --env-file .env up -d
+    PUID="$INSTALL_PUID" \
+    PGID="$INSTALL_PGID" \
+    MONITOR_AGENT_IMAGE="$IMAGE_VALUE" \
+      docker compose --env-file .env pull
+    PUID="$INSTALL_PUID" \
+    PGID="$INSTALL_PGID" \
+    MONITOR_AGENT_IMAGE="$IMAGE_VALUE" \
+      docker compose --env-file .env up -d
   )
 
   cat <<EOF2
@@ -169,6 +195,13 @@ Follow logs with:
 
 EOF2
 else
+  if [[ -z "$SENSORSPHERE_URL_VALUE" || "$SENSORSPHERE_URL_VALUE" == "http://my_sensorsphere_base_url:8080" ]]; then
+    printf 'SensorSphere URL is not configured in %s/.env.\n' "$INSTALL_DIR"
+  fi
+  if [[ -z "$SENSORSPHERE_TOKEN_VALUE" || "$SENSORSPHERE_TOKEN_VALUE" == "ssma_replace_me" ]]; then
+    printf 'SensorSphere agent token is not configured in %s/.env.\n' "$INSTALL_DIR"
+  fi
+
   cat <<EOF2
 
 Installation files are ready.

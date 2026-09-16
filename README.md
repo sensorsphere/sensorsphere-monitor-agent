@@ -53,19 +53,19 @@ The default `docker-compose.yml` is the production/distribution compose file. It
 The recommended installation is the version-aware remote installer:
 
 ```bash
-VERSION=1.0.8 \
+VERSION=1.0.9 \
 INSTALL_DIR=/opt/sensorsphere-monitor-agent \
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/sensorsphere/sensorsphere-monitor-agent/master/scripts/install.sh)"
 ```
 
-The installer downloads `docker-compose.yml` and `.env.example` from the matching Git tag (`v${VERSION}`), creates `data/`, and creates `.env` when it does not exist. A newly created `.env` also receives `PUID` and `PGID`, using explicit installer values when supplied and otherwise the current user UID/GID. An existing `.env` is preserved and backed up; only installer-managed values such as `MONITOR_AGENT_IMAGE` are updated. When `SENSORSPHERE_URL` and `SENSORSPHERE_AGENT_TOKEN` are already configured, the installer automatically pulls the selected image and runs `docker compose up -d`.
+The installer downloads `docker-compose.yml` and `.env.example` from the matching Git tag (`v${VERSION}`), creates `data/`, and creates `.env` when it does not exist. A newly created `.env` also receives `PUID` and `PGID`, using explicit installer values when supplied and otherwise the current user UID/GID. An existing `.env` is preserved and backed up; only installer-managed values such as `MONITOR_AGENT_IMAGE` are updated. Existing Compose-compatible `.env` formatting (including optional `export`, whitespace around `=`, or quoted values) is accepted when checking whether `SENSORSPHERE_URL` and `SENSORSPHERE_AGENT_TOKEN` are configured. When both are configured, the installer automatically pulls the selected image and runs `docker compose up -d`.
 
 For an unversioned installation, omit `VERSION`; the installer uses `master` and the `latest` image tag. `INSTALL_DIR` defaults to `$HOME/sensorsphere-monitor-agent`.
 
 Configure at minimum:
 
 ```env
-MONITOR_AGENT_IMAGE=ghcr.io/sensorsphere/sensorsphere-monitor-agent:1.0.8
+MONITOR_AGENT_IMAGE=ghcr.io/sensorsphere/sensorsphere-monitor-agent:1.0.9
 SENSORSPHERE_URL=http://100.64.0.8:8080
 SENSORSPHERE_AGENT_TOKEN=ssma_replace_me
 DATA_DIR=./data
@@ -83,7 +83,7 @@ Pin `MONITOR_AGENT_IMAGE` to an exact release in production. The recommended upd
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/sensorsphere/sensorsphere-monitor-agent/master/scripts/install.sh \
-  | VERSION=1.0.8 bash
+  | VERSION=1.0.9 bash
 ```
 
 Compose does not set a fixed `container_name`; distinct Compose project names and data directories can therefore run multiple agents on the same host.
