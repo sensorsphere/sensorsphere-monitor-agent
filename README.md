@@ -46,9 +46,9 @@ For a native installation, set `SENSORSPHERE_STATE_FILE` to a writable host path
 SENSORSPHERE_STATE_FILE=/var/lib/sensorsphere-monitor-agent/monitor-agent-state.json
 ```
 
-## Recommended deployment lifecycle
+## Quick install / update
 
-A host can run one or more named Monitor Agent instances. When a SensorSphere Supervisor Agent is present, it is the preferred lifecycle owner for managed Monitor Agent deploy/update/remove operations. The standalone installer remains useful for initial bootstrap, recovery, and hosts that are not yet Supervisor-managed.
+A host can run one or more named Monitor Agent instances. When a SensorSphere Supervisor Agent is present, it is the preferred lifecycle owner for managed deploy/update/remove operations. The standalone installer remains the bootstrap and recovery path.
 
 Install or update a specific release with:
 
@@ -58,9 +58,9 @@ INSTALL_DIR="$HOME/sensorsphere-monitor-agent" \
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/sensorsphere/sensorsphere-monitor-agent/master/scripts/install.sh)"
 ```
 
-The installer preserves an existing `.env`, backs it up before changes, updates only installer-managed values such as the image tag, then pulls and recreates the container when the required SensorSphere URL/token are configured.
+The installer preserves and backs up an existing `.env`, updates only installer-managed values such as `MONITOR_AGENT_IMAGE`, validates the Compose configuration, pulls the selected image and recreates the service when the required SensorSphere URL/token are configured.
 
-Quick verification:
+Verify the deployment with:
 
 ```sh
 cd ~/sensorsphere-monitor-agent
@@ -68,17 +68,13 @@ docker compose --env-file .env ps
 docker compose --env-file .env logs --tail=100 monitor-agent
 ```
 
+For a Supervisor-managed host, use SensorSphere for routine updates after the initial bootstrap. Rerun `scripts/install.sh` manually only for first installation, recovery, or when the Supervisor is unavailable.
+
 ## Docker distribution
 
 The default `docker-compose.yml` is the production/distribution compose file. It pulls a pre-built image and does not require Node.js, npm, Git or the source tree on the target machine.
 
-The recommended installation is the version-aware remote installer:
-
-```bash
-VERSION=1.0.9 \
-INSTALL_DIR=/opt/sensorsphere-monitor-agent \
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/sensorsphere/sensorsphere-monitor-agent/master/scripts/install.sh)"
-```
+The version-aware installer shown above downloads the matching release artifacts and does not require a repository clone on the target host.
 
 The installer downloads `docker-compose.yml` and `.env.example` from the matching Git tag (`v${VERSION}`), creates `data/`, and creates `.env` when it does not exist. A newly created `.env` also receives `PUID` and `PGID`, using explicit installer values when supplied and otherwise the current user UID/GID. An existing `.env` is preserved and backed up; only installer-managed values such as `MONITOR_AGENT_IMAGE` are updated. Existing Compose-compatible `.env` formatting (including optional `export`, whitespace around `=`, or quoted values) is accepted when checking whether `SENSORSPHERE_URL` and `SENSORSPHERE_AGENT_TOKEN` are configured. When both are configured, the installer automatically pulls the selected image and runs `docker compose up -d`.
 
@@ -130,10 +126,10 @@ export IMAGE_NAMESPACE=my-github-org
 ./scripts/release-image.sh
 ```
 
-For version `1.0.8`, the published tags are:
+For version `1.0.9`, the published tags are:
 
 ```text
-ghcr.io/my-github-org/sensorsphere-monitor-agent:1.0.5
+ghcr.io/my-github-org/sensorsphere-monitor-agent:1.0.9
 ghcr.io/my-github-org/sensorsphere-monitor-agent:1.0
 ghcr.io/my-github-org/sensorsphere-monitor-agent:latest
 ```
