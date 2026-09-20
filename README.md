@@ -2,7 +2,7 @@
 
 Standalone outbound-only monitoring agent for SensorSphere. V1 executes assigned `PING` checks and reports results through the SensorSphere Monitoring API. It exposes no inbound management port and requires no inbound firewall/NAT rule.
 
-Version: **1.0.5**
+Version: **1.0.9**
 
 ## Requirements
 
@@ -44,6 +44,28 @@ For a native installation, set `SENSORSPHERE_STATE_FILE` to a writable host path
 
 ```env
 SENSORSPHERE_STATE_FILE=/var/lib/sensorsphere-monitor-agent/monitor-agent-state.json
+```
+
+## Recommended deployment lifecycle
+
+A host can run one or more named Monitor Agent instances. When a SensorSphere Supervisor Agent is present, it is the preferred lifecycle owner for managed Monitor Agent deploy/update/remove operations. The standalone installer remains useful for initial bootstrap, recovery, and hosts that are not yet Supervisor-managed.
+
+Install or update a specific release with:
+
+```sh
+VERSION=1.0.9 \
+INSTALL_DIR="$HOME/sensorsphere-monitor-agent" \
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/sensorsphere/sensorsphere-monitor-agent/master/scripts/install.sh)"
+```
+
+The installer preserves an existing `.env`, backs it up before changes, updates only installer-managed values such as the image tag, then pulls and recreates the container when the required SensorSphere URL/token are configured.
+
+Quick verification:
+
+```sh
+cd ~/sensorsphere-monitor-agent
+docker compose --env-file .env ps
+docker compose --env-file .env logs --tail=100 monitor-agent
 ```
 
 ## Docker distribution
