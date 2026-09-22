@@ -20,3 +20,4 @@ services:
     volumes:
       - ${DATA_DIR:-./data}:/app/data
       - /etc/os-release:/host/etc/os-release:ro
+      - /etc/hostname:/host/etc/hostname:ro

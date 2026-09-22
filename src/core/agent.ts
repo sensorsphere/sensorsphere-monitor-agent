@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { SensorSphereClient } from "../api/client.js";
@@ -13,6 +14,16 @@ import { getSystemInfo } from "../system-info.js";
 function maskedToken(token: string): string {
   if (token.length <= 21) return `${token.slice(0, Math.min(5, token.length))}........`;
   return `${token.slice(0, 13)}........${token.slice(-8)}`;
+}
+
+function reportedHostname(): string {
+  try {
+    const value = fs.readFileSync("/host/etc/hostname", "utf8").trim();
+    if (value) return value;
+  } catch {
+    // Older deployments may not mount the host hostname yet.
+  }
+  return os.hostname();
 }
 
 function runningUsername(): string {
@@ -49,7 +60,7 @@ export class MonitorAgent {
 
     this.logger.info("SensorSphere Monitor Agent starting", {
       version: AGENT_VERSION,
-      hostname: os.hostname(),
+      hostname: reportedHostname(),
       running_user: runningUsername(),
       uid: typeof process.getuid === "function" ? process.getuid() : null,
       gid: typeof process.getgid === "function" ? process.getgid() : null,
@@ -109,7 +120,7 @@ export class MonitorAgent {
     try {
       const response = await this.client.heartbeat({
         version: AGENT_VERSION,
-        hostname: os.hostname(),
+        hostname: reportedHostname(),
         agentLabels: this.config.agentLabels,
         systemInfo: getSystemInfo(),
       });
