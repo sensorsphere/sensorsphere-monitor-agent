@@ -14,7 +14,7 @@ REGISTRY="${REGISTRY:-ghcr.io}"
 IMAGE_NAMESPACE="${IMAGE_NAMESPACE:?Set IMAGE_NAMESPACE, for example your GitHub organization or username}"
 IMAGE_NAME="${IMAGE_NAME:-sensorsphere-monitor-agent}"
 IMAGE="${REGISTRY}/${IMAGE_NAMESPACE}/${IMAGE_NAME}"
-PLATFORMS="${PLATFORMS:-linux/amd64,linux/arm64}"
+PLATFORMS="${PLATFORMS:-linux/amd64,linux/arm64,linux/arm/v7}"
 detect_source() {
   if [[ -n "${GITHUB_REPOSITORY:-}" ]]; then
     printf '%s/%s\n' "${GITHUB_SERVER_URL:-https://github.com}" "$GITHUB_REPOSITORY"

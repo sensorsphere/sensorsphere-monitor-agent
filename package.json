@@ -1,6 +1,6 @@
 {
   "name": "sensorsphere-monitor-agent",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "private": true,
   "description": "Standalone SensorSphere monitoring agent",
   "license": "UNLICENSED",
